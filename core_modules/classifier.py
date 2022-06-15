@@ -47,10 +47,18 @@ class Classifier:
         print(score_message)
         self.save_test_results(score_message, y_pred, y_test)
 
-    def train_classifer(self, df):
+    def train_classifer(self, df, *, prep=False):
 
         data_processor = DataProcessor(df=df)
-        df = data_processor.prepare_data()
+
+        if prep:
+            df = data_processor.prepare_data()
+        else:
+            df.drop(columns=['lead_id', 'customer_name', 'message', 'lead_time', 'ad_group', 'campaign', 'location'], inplace=True, errors='ignore')
+
+            cols_need_onehot_encoding = ['lead_mobile_network', 'method_of_contact', 'lead_source']
+            for col in cols_need_onehot_encoding:
+                df = data_processor.do_onehot_encoding(col)
 
         y = df['low_qualified']
         # print(y)
